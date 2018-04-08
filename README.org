@@ -1,0 +1,22 @@
+* etop
+- view top in an emacs buffer
+- operate on pids via standard bindings (evil bindings available via etop-evil)
+- pause refresh rate to act upon pids, resume to continue to monitor processes
+- pull requests welcome
+
+** TODO:
+   - syntax highlighting of buffer
+   - custom refresh rate
+   - etc.
+     
+** Usage:
+   - M-x etop
+   - pause buffer via M-x etop-pause or keybind
+   - operate on pid via keybind: strace, kill or renice
+   - resume or kill *etop* buffer
+
+most of this code is reused from Benjamin Rutt's top.el on the emacs wiki, it has been refreshed
+and I'm in the process of improving bits and pieces of it.
+
+
+
