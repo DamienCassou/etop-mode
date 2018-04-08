@@ -193,11 +193,14 @@ package to identify where the list of processes begins."
     (if already-in-top
 	(progn
 	  (cancel-timer etop-timer)
+	  (if (not (equal (current-buffer) (get-buffer "*etop*")))
+	      (switch-to-buffer-other-window "*etop*"))
 	  (setq etop-timer (run-at-time (concat (number-to-string etop-refresh-rate) " sec") 1 #'etop-mode-fill-buffer t))
 	  (set-window-start (selected-window) preserved-window-start)
 	  (forward-line preserved-line)
 	  (move-to-column preserved-col))
-      (setq etop-timer (run-at-time (concat (number-to-string etop-refresh-rate) " sec") 1 #'etop-mode-fill-buffer t)))))
+      (setq etop-timer (run-at-time (concat (number-to-string etop-refresh-rate) " sec") 1 #'etop-mode-fill-buffer t))
+      (switch-to-buffer "*etop*"))))
 
 (defsubst etop-mode-string-trim (string)
   "lose leading and trailing whitespace. also remove all

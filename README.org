@@ -6,7 +6,6 @@
 
 ** TODO:
    - syntax highlighting of buffer
-   - custom refresh rate
    - etc.
      
 ** Usage:
@@ -14,6 +13,7 @@
    - pause buffer via M-x etop-pause or keybind
    - operate on pid via keybind: strace, kill or renice
    - resume or kill *etop* buffer
+   - you *must* pause the refreshing of the buffer before you kill, otherwise the buffer will spawn again
 
 most of this code is reused from Benjamin Rutt's top.el on the emacs wiki, it has been refreshed
 and I'm in the process of improving bits and pieces of it.
