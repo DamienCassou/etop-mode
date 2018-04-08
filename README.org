@@ -1,6 +1,6 @@
 * etop
 - view top in an emacs buffer
-- operate on pids via standard bindings (evil bindings available via etop-evil)
+- operate on pids via standard bindings (evil bindings available via evil-etop)
 - pause refresh rate to act upon pids, resume to continue to monitor processes
 - pull requests welcome
 
