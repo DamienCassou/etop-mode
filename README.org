@@ -6,6 +6,7 @@
 
 ** TODO:
    - syntax highlighting of buffer
+   - tramp aware
    - etc.
      
 ** Usage:
