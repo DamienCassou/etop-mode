@@ -1,7 +1,8 @@
-;;; etop-mode.el --- run "top" from emacs
+;;; etop-mode.el --- run "top" -*- lexical-binding: t -*-
 
 ;;; Author: Case Mattingly
-;;; Created: Apr 8, 2018
+;;; Version: 0.1
+;;; URL: https://github.com/akacase/etop
 
 ;; Author: Benjamin Rutt
 ;; Created: Jul 18, 2004
@@ -45,7 +46,7 @@
 ;; NOTE: tested only on GNU/Linux. 
 
 ;;; Code:
-(defgroup etop-mode nil
+(defgroup etop nil
   "Emacs frontend to the top command, which monitors system processes."
   :group 'processes)
 
@@ -141,7 +142,7 @@ package to identify where the list of processes begins."
   (when (not window-system)
     (setq truncate-lines t)))
 
-(defun etop-mode-revert-buffer-function (&optional ignore-auto noconfirm)
+(defun etop-mode-revert-buffer-function (&optional noconfirm)
   (when (or noconfirm
 	    (y-or-n-p "revert *etop* buffer? "))
     (etop)))
@@ -377,4 +378,4 @@ properties from string."
 
 (provide 'etop-mode)
 
-;; etop.el ends here
+;;; etop-mode.el ends here
