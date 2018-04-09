@@ -25,7 +25,7 @@
 
 ;;; Commentary:
 
-;; This code runs top from within emacs (using top's batch mode), and
+;; This code runs top from within Emacs (using top's batch mode), and
 ;; provides functionality to operate on processes.
 
 ;; In order to run it, just execute M-x top.  Unlike real top, the
@@ -43,7 +43,7 @@
 ;; You can also toggle showing processes of a specific user by
 ;; pressing 'U'.
 ;;
-;; NOTE: tested only on GNU/Linux. 
+;; NOTE: tested only on GNU/Linux.
 
 ;;; Code:
 (defgroup etop nil
@@ -52,34 +52,32 @@
 
 (defcustom etop-mode-generate-top-command-function
   'etop-mode-generate-top-command-default
-  "*Which function to be called to produce the command line for
-running top on your machine.
-
-The function will be called with one argument, USER, which will
-either be a string specifying that the processes owned by USER
-should be shown, or nil, meaning that all processes should be
-shown."
+  "The function to be called, to produce the command line string
+for running top. The function will be called with one argument,
+USER, which will either be a string specifying that the processes
+owned by USER should be shown, or nil, meaning that all processes
+should be shown."
   :type 'function
   :group 'etop-mode)
 
 (defcustom etop-mode-column-header-regexp "^\\s-+PID\\s-+USER.*COMMAND\\s-*$"
-  "*regexp to match the column header line, which helps this
+  "Regexp to match the column header line, which helps this.
 package to identify where the list of processes begins."
   :type 'regexp
   :group 'etop-mode)
 
 (defcustom etop-mode-mark-face 'highlight
-  "*face with which to mark lines."
+  "Face with which to mark lines."
   :type 'face
   :group 'etop-mode)
 
 (defcustom etop-mode-strace-command "strace"
-  "*system call tracer (probably set this to \"truss\" on Solaris, etc)."
+  "System call tracer (probably set this to \"truss\" on Solaris, etc)."
   :type 'string
   :group 'etop-mode)
 
 (defcustom etop-refresh-rate 1
-  "*set refresh rate that top will be called at."
+  "Set refresh rate that top will be called at."
   :type 'number
   :group 'etop-mode)
 
@@ -91,6 +89,7 @@ package to identify where the list of processes begins."
 (defvar etop-mode-generate-top-command-default-user-arg 'unknown)
 
 (defun etop-mode-generate-top-command-default (user)
+  "Generate top command with USER as the filter."
   (if (not user)
       "top -b -n 1"
     ;; try "-u" argument, and set cache variable based on result
@@ -111,7 +110,7 @@ package to identify where the list of processes begins."
       (format "top -b -n 1 | awk 'BEGIN { seenColumnLine=0; } { if (seenColumnLine==0) { print } else if ($2 == \"%s\") { print }; if ($0 ~ /PID.*USER.*COMMAND/) { seenColumnLine=1; } }'" user)))))
 
 (defvar etop-mode-map nil    ; Create a mode-specific keymap.
-  "keymap for top mode.")
+  "Keymap for top mode.")
 
 (if etop-mode-map nil
   (setq etop-mode-map (make-sparse-keymap))
@@ -132,7 +131,7 @@ package to identify where the list of processes begins."
   (define-key etop-mode-map "U" 'etop-mode-show-specific-user))
 
 (defun etop-mode ()
-  "major mode for running top and interacting with processes."
+  "Major mode for running top and interacting with processes."
   (interactive)
   (kill-all-local-variables)
   (use-local-map etop-mode-map)
@@ -143,21 +142,24 @@ package to identify where the list of processes begins."
     (setq truncate-lines t)))
 
 (defun etop-mode-revert-buffer-function (&optional noconfirm)
+  "Revert, or refresh buffer, NOCONFIRM for a prompt."
   (when (or noconfirm
-	    (y-or-n-p "revert *etop* buffer? "))
+	    (y-or-n-p "Revert *etop* buffer? "))
     (etop)))
 
 (defun etop-mode-next-line ()
-  "move to next line in etop-mode"
+  "Move to next line in ‘etop-mode’."
   (interactive)
   (forward-line 1))
 
 (defun etop-mode-previous-line ()
-  "move to previous line in etop-mode"
+  "Move to previous line in ‘etop-mode’."
   (interactive)
   (forward-line -1))
 
 (defun etop-mode-fill-buffer (goto-first-process)
+  "Populates buffer with the output from top, GOTO-FIRST-PROCESS
+will jump to the top of the buffer."
   (get-buffer-create "*etop*")
   (with-current-buffer "*etop*"
     (setq buffer-read-only nil)
@@ -185,7 +187,7 @@ package to identify where the list of processes begins."
 
 ;;;###autoload
 (defun etop ()
-  "runs 'etop' in an emacs buffer."
+  "Run 'etop' in an Emacs buffer."
   (interactive)
   (let* ((already-in-top (or (equal major-mode 'etop-mode) (get-buffer "*etop*")))
 	 (preserved-line (if already-in-top (string-to-number (format-mode-line "%l")) nil))
@@ -204,8 +206,8 @@ package to identify where the list of processes begins."
       (switch-to-buffer "*etop*"))))
 
 (defsubst etop-mode-string-trim (string)
-  "lose leading and trailing whitespace. also remove all
-properties from string."
+  "Lose leading and trailing whitespace.
+also remove all properties from STRING."
   (if (string-match "\\`[ \t\n]+" string)
       (setq string (substring string (match-end 0))))
   (if (string-match "[ \t\n]+\\'" string)
@@ -213,7 +215,8 @@ properties from string."
   (set-text-properties 0 (length string) nil string)
   string)
 
-(defun etop-mode-on-pid-line ()
+(defun etop-mode-on-pid-line-p ()
+  "Predicate for testing whether or not present on a pid line."
   (when (save-excursion
 	  (beginning-of-line)
 	  (let ((orig-line (string-to-number (format-mode-line "%l"))))
@@ -236,8 +239,9 @@ properties from string."
 	after-pid-line-column-header))))
 
 (defun etop-mode-goto-pid ()
+  "Jump to pid on current line, if present."
   (interactive)
-  (when (etop-mode-on-pid-line)
+  (when (etop-mode-on-pid-line-p)
     (beginning-of-line)
     (while (looking-at "\\s-")
       (forward-char 1))
@@ -246,12 +250,14 @@ properties from string."
     (forward-char -1)))
 
 (defun etop-mode-get-pid-from-line ()
+  "Get pid from current line."
   (save-excursion
     (beginning-of-line)
     (re-search-forward "\\s-*\\([0-9]+\\)\\s-+" (line-end-position))
     (string-to-number (match-string 1))))
 
 (defun etop-mode-show-specific-user ()
+  "Spawn ‘etop-mode’ with specific user filter."
   (interactive)
   (let ((response (read-from-minibuffer "which user (blank for all): ") ))
     (if (string= response "")
@@ -260,6 +266,7 @@ properties from string."
     (etop)))
 
 (defun etop-mode-get-target-pids ()
+  "Get pids that have been marked."
   (or
    (sort
     (delq
@@ -285,8 +292,9 @@ properties from string."
 	(etop-mode-member-at-least-one (cdr ls1) ls2))))
 
 (defun etop-mode-unmark ()
+  "Unmark marked pids for action."
   (interactive)
-  (if (not (etop-mode-on-pid-line))
+  (if (not (etop-mode-on-pid-line-p))
       (message "not on a process line")
     (let (existing-overlay)
       (mapc
@@ -301,8 +309,9 @@ properties from string."
       (forward-line 1))))
 
 (defun etop-mode-mark ()
+  "Mark pids for action."
   (interactive)
-  (if (not (etop-mode-on-pid-line))
+  (if (not (etop-mode-on-pid-line-p))
       (message "not on a process line")
     (when (not (etop-mode-member-at-least-one
 		(overlays-at (point))
@@ -316,13 +325,16 @@ properties from string."
     (forward-line 1)))
 
 (defun etop-mode-confirm-action (action-name pids)
+  "Custom confirm action for ‘etop-mode’.
+ACTION-NAME and PIDS are used to format the response string."
   (y-or-n-p
-   (format "really %s pids %s? " action-name
+   (format "Really %s pids %s? " action-name
 	   (mapconcat (lambda (num) (format "%d" num)) pids " "))))
 
 (defun etop-mode-renice (&optional noconfirm)
+  "Renice selected pids.  Pass NOCONFIRM for action without confirmation."
   (interactive)
-  (if (not (etop-mode-on-pid-line))
+  (if (not (etop-mode-on-pid-line-p))
       (message "not on a process line")
     (let ((pids (etop-mode-get-target-pids)))
       (when (or noconfirm
@@ -333,12 +345,14 @@ properties from string."
 	(etop)))))
 
 (defun etop-mode-renice-noconfirm ()
+  "Renice selected pids without confirmation."
   (interactive)
   (etop-mode-renice t))
 
 (defun etop-mode-strace (&optional noconfirm)
+  "Strace selected pids.  Pass NOCONFIRM for action without confirmation."
   (interactive)
-  (if (not (etop-mode-on-pid-line))
+  (if (not (etop-mode-on-pid-line-p))
       (message "not on a process line")
     (let ((pids (etop-mode-get-target-pids)))
       (if (> (length pids) 1)
@@ -349,12 +363,14 @@ properties from string."
 	   (format "%s -p %d &" etop-mode-strace-command (car pids))))))))
 
 (defun etop-mode-strace-noconfirm ()
+  "Strace selected pids without confirmation."
   (interactive)
   (etop-mode-strace t))
 
 (defun etop-mode-kill (&optional noconfirm)
+  "Kill selected pids.  Pass NOCONFIRM for action without confirmation."
   (interactive)
-  (if (not (etop-mode-on-pid-line))
+  (if (not (etop-mode-on-pid-line-p))
       (message "not on a process line")
     (let ((pids (etop-mode-get-target-pids)))
       (when (or noconfirm
@@ -364,17 +380,20 @@ properties from string."
 		 (mapconcat (lambda (num) (format "%d" num)) pids " ")))
 	(etop)))))
 
+(defun etop-mode-kill-noconfirm ()
+  "Kill selected pids without confirmation."
+  (interactive)
+  (etop-mode-kill t))
+
 (defun etop-pause ()
+  "Pause the refreshing of the ‘etop-mode’ buffer."
   (interactive)
   (cancel-timer etop-timer))
 
 (defun etop-resume ()
+  "Resume the refreshing of the ‘etop-mode’ buffer."
   (interactive)
   (etop))
-
-(defun etop-mode-kill-noconfirm ()
-  (interactive)
-  (etop-mode-kill t))
 
 (provide 'etop-mode)
 
